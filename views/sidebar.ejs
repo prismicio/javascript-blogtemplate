@@ -2,13 +2,16 @@
     <div class="search-icon">
         <i class="fa fa-search"></i>
     </div>
-    <?php get_search_form() ?>
+    <form method = "get" action = "/search" >
+        <input type = "text" placeholder = "search" name = "q" >
+    </form >
 </div>
 
 <div class="sidebar-section">
-    <h3 class="blog-nav-item"><?= home_link('Home') ?></h3>
+    <h3 class="blog-nav-item"><a href="<%- ctx.linkResolver(home) %>">Home</a></h3>
 </div>
 
+<!-- % for(var i=0; i < pagesTree().results.length; i++) { % -->
 <?php foreach(get_pages() as $page) { ?>
 <div class="sidebar-section">
     <h3><?= page_link($page) ?></h3>
@@ -18,7 +21,7 @@
         <?php } ?>
     </ul>
 </div>
-<?php } ?>
+<!-- % } % -->
 
 <div class="sidebar-section">
     <h3>Archives</h3>

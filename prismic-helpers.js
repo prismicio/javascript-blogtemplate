@@ -3,11 +3,16 @@ var Prismic = require('prismic.io').Prismic,
     http = require('http'),
     https = require('https'),
     url = require('url'),
-    querystring = require('querystring');
+    querystring = require('querystring'),
+    Q = require('q');
 
 exports.previewCookie = Prismic.previewCookie;
 
 // -- Helpers
+
+function Q_submit(form) {
+  return Q.nbind(form.submit, form)();
+}
 
 exports.form = function(ctx) {
   return ctx.api.forms('everything').ref(ctx.ref);
@@ -15,6 +20,12 @@ exports.form = function(ctx) {
 
 exports.getApiHome = function(accessToken, callback) {
   Prismic.Api(Configuration.apiEndpoint, callback, accessToken);
+};
+
+exports.Q_getDocument = function(ctx, id) {
+  return Q_submit(ctx.api.forms('everything').ref(ctx.ref).query(Prismic.Predicates.at('document.id', id))).then(function(res){
+    return (res && res.results && res.results.length) ? res.results[0] : undefined;
+  });
 };
 
 exports.getDocument = function(ctx, id, slug, onSuccess, onNewSlug, onNotFound) {
@@ -63,8 +74,22 @@ exports.route = function(callback) {
             api: Api,
             ref: req.cookies[Prismic.experimentCookie] || req.cookies[Prismic.previewCookie] || Api.master(),
 
-            linkResolver: function(doc) {
-              return Configuration.linkResolver(doc);
+            linkResolver: function(link) {
+              if (link.id == Api.bookmarks['home']) return '/';
+              if (link.type == "author") {
+                return "/author/" + link.id + '/' + link.getText('author.slug');
+              }
+              if (link.type == "category") {
+                return "/category/" + link.uid;
+              }
+              if (link.type == "post") {
+                var date = link.getDate("post.date");
+                return "/" + date.getFullYear() + '/' + date.getMonth() + '/' + date.getDay() + '/' + link.uid;
+              }
+              if (linktype == "page") {
+                // TODO: Get all parents to build the URL
+                return '/';
+              }
             }
           };
       res.locals.ctx = ctx;

@@ -42,7 +42,7 @@ app.route('/').get(routes.index);
 //app.route('/archive/:year/:month/:day').get(routes.archive);
 //app.route('/preview').get(routes.preview);
 //app.route('/feed').get(routes.feed);
-//app.route('/:year/:month/:day/:uid').get(routes.post);
+app.route('/:year/:month/:day/:uid').get(routes.post);
 //app.route('/:path').get(routes.page);
 
 var PORT = app.get('port');

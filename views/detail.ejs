@@ -1,5 +1,24 @@
 <% layout('layout') -%>
 
-<article>
-    <%- doc.asHtml(ctx.linkResolver) %>
-</article>
+<div class="blog-header" style="background-image: url(<?= post_thumbnail_url() ?>)">
+    <div class="container">
+        <h1 class="blog-title"><%- post.getText('post.title') %></h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="blog-main">
+
+        <p class="blog-post-meta">
+            <span class="fa fa-calendar" aria-hidden="true"></span> <?= get_day_link($post_year, $post_month, $post_day) ?>,
+            <span class="fa fa-calendar" aria-hidden="true"></span> <?= the_author_link() ?></p>
+
+        <%- post.getStructuredText('post.body').asHtml(ctx.linkResolver) %>
+
+        <!-- TODO previous_post_link() -->
+
+        <!-- TODO next_post_link() -->
+
+    </div>
+</div>
+

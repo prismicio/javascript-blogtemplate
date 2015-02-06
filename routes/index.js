@@ -1,10 +1,32 @@
 var helpers = require('../prismic-helpers'),
-  Prismic = require('prismic.io').Prismic;
+  Prismic = require('prismic.io').Prismic,
+  Q = require('q'),
+  _ = require('lodash');
+
+// Submit a Prismic form and get a Q promise
+
+function Q_submit(form) {
+  return Q.nbind(form.submit, form)();
+}
+
+// Pages helpers
+
+function Q_pages(ctx) {
+  helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']).then(function (home) {
+    var pages = page.getGroup('page.children').toArray();
+    _(pages).map(function(page) {
+      return {
+        label: page.getText('label'),
+        link: page.getLink('link')
+      }
+    });
+  })
+}
 
 // -- Display all documents
 
 exports.index = helpers.route(function(req, res, ctx) {
-  helpers.form(ctx)
+  var docs = Q_submit(helpers.form(ctx)
     .page(req.param('page') || '1')
     .query(Prismic.Predicates.at('document.type', 'post'))
     .fetchLinks([
@@ -15,13 +37,19 @@ exports.index = helpers.route(function(req, res, ctx) {
       'author.surname',
       'author.company'
     ])
-    .orderings("[my.post.date desc]")
-    .submit(function (err, docs) {
-      if (err) { helpers.onPrismicError(err, req, res); return; }
-      res.render('index', {
-        docs: docs
-      });
+    .orderings("[my.post.date desc]"));
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, pages, docs]).then(function (result) {
+    res.render('index', {
+      home: result[0],
+      pages: result[1],
+      docs: result[2]
     });
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
 });
 
 exports.author = helpers.route(function(req, res, ctx) {
@@ -31,23 +59,36 @@ exports.author = helpers.route(function(req, res, ctx) {
 // -- Display a given document
 
 exports.post = helpers.route(function(req, res, ctx) {
-  var id = req.params['id'],
-      slug = req.params['slug'];
+  var uid = req.params['uid'];
 
-  helpers.getDocument(ctx, id, slug,
-    function(err, doc) {
-      if (err) { helpers.onPrismicError(err, req, res); return; }
-      res.render('detail', {
-        doc: doc
-      });
-    },
-    function(doc) {
-      res.redirect(301, ctx.linkResolver(doc));
-    },
-    function(NOT_FOUND) {
+  var doc = Q_submit(helpers.form(ctx)
+    .query(Prismic.Predicates.at('my.post.uid', uid))
+    .fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])).then(function(res) {
+      return (res && res.results && res.results.length) ? res.results[0] : undefined;
+  });
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, pages, doc]).then(function (result) {
+    if (!result[2]) {
       res.send(404, 'Sorry, we cannot find that!');
+      return;
     }
-  );
+    res.render('detail', {
+      home: result[0],
+      pages: result[1],
+      post: result[2]
+    });
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
 });
 
 // -- Search in documents
