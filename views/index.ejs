@@ -1,0 +1,27 @@
+<% layout('layout') -%>
+
+<% block('bodyclass', "front-page") %>
+
+
+<div class="blog-header home">
+    <div class="container">
+        <h1 class="blog-title"><?= site_title() ?></h1>
+        <p class="lead blog-description"><?= site_description() ?></p>
+    </div>
+</div>
+
+<div class="container blog-main">
+
+    <% for(var i=0; i < docs.results.length; i++) { %>
+        <%- partial('content', { item: docs.results[i] }) %>
+    <% } %>
+    <% if (docs.results.length == 0) { %>
+        Sorry, no posts matched your criteria.
+    <% } %>
+
+    <?php previous_posts_link() ?>
+
+    <?php next_posts_link() ?>
+
+</div>
+
