@@ -11,17 +11,17 @@
     <h3 class="blog-nav-item"><a href="<%- ctx.linkResolver(home) %>">Home</a></h3>
 </div>
 
-<!-- % for(var i=0; i < pagesTree().results.length; i++) { % -->
-<?php foreach(get_pages() as $page) { ?>
+<% for(var i=0; i < pages.length; i++) { %>
 <div class="sidebar-section">
-    <h3><?= page_link($page) ?></h3>
+    <h3><a href="<%- ctx.linkResolver(pages[i]) %>"><%- pages[i].doc.getText('label') %></a></h3>
     <ul>
-        <?php foreach($page['children'] as $subpage) { ?>
-        <li><?= page_link($subpage) ?></li>
-        <?php } ?>
+        <% for (var j=0; j < pages[i].children.length; j++) { %>
+        <% var subpage = pages[i].children[j] %>
+        <li><a href="<%- ctx.linkResolver(subpage) %>"><%- subpage.getText('label') %></a></li>
+        <% } %>
     </ul>
 </div>
-<!-- % } % -->
+<% } %>
 
 <div class="sidebar-section">
     <h3>Archives</h3>

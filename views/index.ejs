@@ -13,7 +13,7 @@
 <div class="container blog-main">
 
     <% for(var i=0; i < docs.results.length; i++) { %>
-        <%- partial('content', { item: docs.results[i] }) %>
+        <%- partial('content', { post: docs.results[i] }) %>
     <% } %>
     <% if (docs.results.length == 0) { %>
         Sorry, no posts matched your criteria.

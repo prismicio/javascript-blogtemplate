@@ -1,7 +1,7 @@
 
 <div class="blog-post">
     <h2 class="blog-post-title">
-        <a href="<%- ctx.linkResolver(item) %>"><%- item.getText('post.title') %></a>
+        <a href="<%- ctx.linkResolver(post) %>"><%- post.getText('post.title') %></a>
     </h2>
     <p class="blog-post-meta">
         <span class="fa fa-calendar" aria-hidden="true"></span> <?= the_date_link() ?>
@@ -11,7 +11,11 @@
     </p>
 
     <div class="post-thumbnail">
-        <?php the_post_thumbnail('medium') ?>
+        <%- post.getImageView('post.image', 'medium') ? post.getImageView('post.image', 'medium').asHtml() : '' %>
     </div>
-    <?php the_excerpt() ?>
+    <% if (post.getStructuredText('post.shortlede')) { %>
+        <%- post.getStructuredText('post.shortlede').asHtml(ctx.linkResolver) %>
+    <% } else { %>
+        <%- post.getStructuredText('post.body').asText().substring(0, 300) %>...
+    <% } %>
 </div>

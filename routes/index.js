@@ -12,14 +12,23 @@ function Q_submit(form) {
 // Pages helpers
 
 function Q_pages(ctx) {
-  helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']).then(function (home) {
-    var pages = page.getGroup('page.children').toArray();
-    _(pages).map(function(page) {
-      return {
-        label: page.getText('label'),
-        link: page.getLink('link')
+  return helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']).then(function (home) {
+    var pages = home.getGroup('page.children').toArray();
+    return Q.all(_.map(pages, function(page) {
+      var link = page.getLink('link');
+      var childrenP = Q([]);
+      if (link instanceof Prismic.Fragments.DocumentLink) {
+        childrenP = helpers.Q_getDocument(ctx, link.id).then(function (linkDoc) {
+          return linkDoc.getGroup('page.children') ? linkDoc.getGroup('page.children').toArray() : [];
+        });
       }
-    });
+      return childrenP.then(function(children){
+        return {
+          doc: page,
+          children: children
+        }
+      });
+    }));
   })
 }
 
@@ -42,6 +51,7 @@ exports.index = helpers.route(function(req, res, ctx) {
   var pages = Q_pages(ctx);
 
   Q.all([home, pages, docs]).then(function (result) {
+    console.log("Pages are : ", result[1]);
     res.render('index', {
       home: result[0],
       pages: result[1],

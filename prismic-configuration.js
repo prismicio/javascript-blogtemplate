@@ -7,6 +7,7 @@ exports.Configuration = {
 
   // -- What to do in the event of an error from prismic.io
   onPrismicError: function(err, req, res) {
+    console.log(err.stack);
     res.send(500, "Error 500: " + err.message);
   }
 

@@ -86,7 +86,7 @@ exports.route = function(callback) {
                 var date = link.getDate("post.date");
                 return "/" + date.getFullYear() + '/' + date.getMonth() + '/' + date.getDay() + '/' + link.uid;
               }
-              if (linktype == "page") {
+              if (link.type == "page") {
                 // TODO: Get all parents to build the URL
                 return '/';
               }
