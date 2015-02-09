@@ -4,8 +4,15 @@
         <a href="<%- ctx.linkResolver(post) %>"><%- post.getText('post.title') %></a>
     </h2>
     <p class="blog-post-meta">
-        <span class="fa fa-calendar" aria-hidden="true"></span> <?= the_date_link() ?>
-        <span class="fa fa-user" aria-hidden="true"></span> <?= the_author_link() ?>
+        <% if (post.getDate('post.date')) { %>
+            <% var m = moment(post.getDate('post.date')) %>
+            <span class="fa fa-calendar" aria-hidden="true"></span> <?= the_date_link() ?>
+            <a href="/archive/<%= m.format('YYYY/MM/DD') %>"><%= m.format('MMMM D, YYYY') %></a>
+        <% } %>
+        <% if (post.getLink('post.author')) { %>
+            <span class="fa fa-user" aria-hidden="true"></span>
+            <a href = "<%= ctx.linkResolver(post.getLink('post.author')) %>"><%= post.getLink('post.author').getText('author.full_name') %></a>
+        <% } %>
         <span class="fa fa-folder-open" aria-hidden="true"></span> <?php the_category(', ') ?>
         <span class="fa fa-tags" aria-hidden="true"></span> <?php the_tags('', ', ') ?>
     </p>

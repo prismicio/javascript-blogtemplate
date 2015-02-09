@@ -4,6 +4,7 @@
  */
 var express = require('express'),
     favicon = require('static-favicon'),
+    moment = require('moment'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
@@ -17,6 +18,9 @@ var express = require('express'),
     prismic = require('./prismic-helpers');
 
 var app = express();
+
+// Inject moment to ve used in templates
+app.locals.moment = moment;
 
 // all environments
 app.engine('ejs', engine);
