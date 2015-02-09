@@ -13,8 +13,19 @@
             <span class="fa fa-user" aria-hidden="true"></span>
             <a href = "<%= ctx.linkResolver(post.getLink('post.author')) %>"><%= post.getLink('post.author').getText('author.full_name') %></a>
         <% } %>
-        <span class="fa fa-folder-open" aria-hidden="true"></span> <?php the_category(', ') ?>
-        <span class="fa fa-tags" aria-hidden="true"></span> <?php the_tags('', ', ') ?>
+        <% if (post.getGroup('post.categories')) { %>
+            <span class="fa fa-folder-open" aria-hidden="true"></span>
+        <%- _.chain(post.getGroup('post.categories').value)
+             .map(function(cat) {
+                return '<a href="' + ctx.linkResolver(cat.getLink('link')) + '">' + cat.getLink('link').getText('category.name') + '</a>';
+             }).value().join(", ")
+        %>
+        <% } %>
+        <span class="fa fa-tags" aria-hidden="true"></span>
+        <%- _.map(post.tags, function(tag) {
+                return '<a href="/tag/' + tag + '">' + tag + '</a>';
+             }).join(", ")
+        %>
     </p>
 
     <div class="post-thumbnail">

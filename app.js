@@ -4,7 +4,6 @@
  */
 var express = require('express'),
     favicon = require('static-favicon'),
-    moment = require('moment'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
@@ -19,8 +18,9 @@ var express = require('express'),
 
 var app = express();
 
-// Inject moment to ve used in templates
-app.locals.moment = moment;
+// Inject interesting libs to use in templates
+app.locals.moment = require('moment');
+app.locals._ = require('lodash');
 
 // all environments
 app.engine('ejs', engine);
