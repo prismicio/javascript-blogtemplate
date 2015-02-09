@@ -1,0 +1,36 @@
+<% layout('layout') -%>
+
+<div class="blog-header blog-author-header">
+    <div class="container">
+        <div class="author-image" style="background-image: url(<%= author.getImageView('author.photo', 'main') %>)"></div>
+        <h1 class="blog-title author-name-title"><%= author.getText('author.full_name') %></h1>
+        <div class="author-bio">
+            <%- author.getStructuredText('author.bio').asHtml(ctx.linkResolver()) %>
+        </div>
+        <div class="author-sites">
+            <ul>
+                <%-
+                _.map(author.getGroup('author.sites').value, function(site) {
+                    return '<li><a href="' + site.getLink('link').url(ctx.linkResolver) + '">' + site.getText('label') + '</a></li>';
+                }).join("")
+                %>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container blog-main">
+
+    <% for(var i=0; i < docs.results.length; i++) { %>
+    <%- partial('content', { post: docs.results[i] }) %>
+    <% } %>
+    <% if (docs.results.length == 0) { %>
+    Sorry, no posts matched your criteria.
+    <% } %>
+
+    <?php previous_posts_link() ?>
+
+    <?php next_posts_link() ?>
+
+</div>
+

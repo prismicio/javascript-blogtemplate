@@ -75,9 +75,10 @@ exports.route = function(callback) {
             ref: req.cookies[Prismic.experimentCookie] || req.cookies[Prismic.previewCookie] || Api.master(),
 
             linkResolver: function(link) {
+              if (!link) return "";
               if (link.id == Api.bookmarks['home']) return '/';
               if (link.type == "author") {
-                return "/author/" + link.id + '/' + link.getText('author.slug');
+                return "/author/" + link.id + '/' + link.slug;
               }
               if (link.type == "category") {
                 return "/category/" + link.uid;

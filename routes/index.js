@@ -51,7 +51,6 @@ exports.index = helpers.route(function(req, res, ctx) {
   var pages = Q_pages(ctx);
 
   Q.all([home, pages, docs]).then(function (result) {
-    console.log("Pages are : ", result[1]);
     res.render('index', {
       home: result[0],
       pages: result[1],
@@ -63,7 +62,38 @@ exports.index = helpers.route(function(req, res, ctx) {
 });
 
 exports.author = helpers.route(function(req, res, ctx) {
-    res.render('todo');
+  var authorId = req.params['id'];
+  var author = Q_submit(helpers.form(ctx)
+    .query(Prismic.Predicates.at('document.id', authorId)));
+  var docs = Q_submit(helpers.form(ctx)
+    .page(req.param('page') || '1')
+    .query(Prismic.Predicates.at('document.type', 'post'), Prismic.Predicates.at('my.post.author', authorId))
+    .fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])
+    .orderings("[my.post.date desc]"));
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, author, pages, docs]).then(function (result) {
+    if (result[1].results_size > 0) {
+      res.render('author', {
+        home: result[0],
+        author: result[1].results[0],
+        pages: result[2],
+        docs: result[3]
+      });
+    } else {
+      res.status(404).send('Not found');
+    }
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
 });
 
 // -- Display a given document
