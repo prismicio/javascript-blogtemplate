@@ -136,21 +136,31 @@ exports.post = helpers.route(function(req, res, ctx) {
 exports.search = helpers.route(function(req, res, ctx) {
   var q = req.query['q'];
 
-  if(q) {
-    ctx.api.form('everything').set("page", req.param('page') || "1").ref(ctx.ref)
-           .query('[[:d = fulltext(document, "' + q + '")]]').submit(function(err, docs) {
-      if (err) { helpers.onPrismicError(err, req, res); return; }
-      res.render('search', {
-        docs: docs,
-        url: req.url
-      });
-    });
-  } else {
+  var docs = Q_submit(helpers.form(ctx)
+    .page(req.param('page') || '1')
+    .query(Prismic.Predicates.fulltext('document', q))
+    .fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])
+    .orderings("[my.post.date desc]"));
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, pages, docs]).then(function (result) {
     res.render('search', {
-      docs: null,
-      url: req.url
+      q: q,
+      home: result[0],
+      pages: result[1],
+      docs: result[2]
     });
-  }
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
 
 });
 

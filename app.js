@@ -40,7 +40,7 @@ app.use(errorHandler());
 // Routes
 app.route('/').get(routes.index);
 app.route('/author/:id/:slug').get(routes.author);
-//app.route('/search').get(routes.search);
+app.route('/search').get(routes.search);
 //app.route('/category/:uid').get(routes.category);
 //app.route('/tag/:tag').get(routes.tag);
 //app.route('/archive/:year/:month/:day').get(routes.archive);
