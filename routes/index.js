@@ -121,7 +121,7 @@ exports.page = helpers.route(function(req, res, ctx) {
       res.send(404, 'Sorry, we cannot find that!');
       return;
     }
-    res.render('detail', {
+    res.render('page', {
       home: result[0],
       pages: result[1],
       post: result[2]
