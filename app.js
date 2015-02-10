@@ -47,7 +47,7 @@ app.route('/search').get(routes.search);
 //app.route('/preview').get(routes.preview);
 //app.route('/feed').get(routes.feed);
 app.route('/:year/:month/:day/:uid').get(routes.post);
-//app.route('/:path').get(routes.page);
+app.route('/:uid').get(routes.page);
 
 var PORT = app.get('port');
 

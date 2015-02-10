@@ -13,11 +13,11 @@
 
 <% for(var i=0; i < pages.length; i++) { %>
 <div class="sidebar-section">
-    <h3><a href="<%- ctx.linkResolver(pages[i]) %>"><%- pages[i].doc.getText('label') %></a></h3>
+    <h3><a href="<%- pages[i].doc.getLink('link').url(ctx.linkResolver) %>"><%- pages[i].doc.getText('label') %></a></h3>
     <ul>
         <% for (var j=0; j < pages[i].children.length; j++) { %>
         <% var subpage = pages[i].children[j] %>
-        <li><a href="<%- ctx.linkResolver(subpage) %>"><%- subpage.getText('label') %></a></li>
+        <li><a href="<%- subpage.getLink('link').url(ctx.linkResolver) %>"><%- subpage.getText('label') %></a></li>
         <% } %>
     </ul>
 </div>

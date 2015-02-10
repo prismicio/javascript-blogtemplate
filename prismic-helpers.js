@@ -75,7 +75,9 @@ exports.route = function(callback) {
             ref: req.cookies[Prismic.experimentCookie] || req.cookies[Prismic.previewCookie] || Api.master(),
 
             linkResolver: function(link) {
-              if (!link) return "";
+              if (!link) {
+                return "";
+              }
               if (link.id == Api.bookmarks['home']) return '/';
               if (link.type == "author") {
                 return "/author/" + link.id + '/' + link.slug;
@@ -88,8 +90,7 @@ exports.route = function(callback) {
                 return "/" + date.getFullYear() + '/' + date.getMonth() + '/' + date.getDay() + '/' + link.uid;
               }
               if (link.type == "page") {
-                // TODO: Get all parents to build the URL
-                return '/';
+                return '/' + link.uid;
               }
             }
           };

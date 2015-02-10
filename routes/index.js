@@ -96,6 +96,41 @@ exports.author = helpers.route(function(req, res, ctx) {
   });
 });
 
+// -- Display a page
+
+exports.page = helpers.route(function(req, res, ctx) {
+  var uid = req.params['uid'];
+
+  var doc = Q_submit(helpers.form(ctx)
+    .query(Prismic.Predicates.at('my.page.uid', uid))
+    .fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])).then(function(res) {
+      return (res && res.results && res.results.length) ? res.results[0] : undefined;
+  });
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, pages, doc]).then(function (result) {
+    if (!result[2]) {
+      res.send(404, 'Sorry, we cannot find that!');
+      return;
+    }
+    res.render('detail', {
+      home: result[0],
+      pages: result[1],
+      post: result[2]
+    });
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
+});
+
 // -- Display a given document
 
 exports.post = helpers.route(function(req, res, ctx) {
