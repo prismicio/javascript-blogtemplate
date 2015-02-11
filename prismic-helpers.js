@@ -4,6 +4,8 @@ var Prismic = require('prismic.io').Prismic,
     https = require('https'),
     url = require('url'),
     querystring = require('querystring'),
+    _ = require('lodash'),
+    moment = require('moment'),
     Q = require('q');
 
 exports.previewCookie = Prismic.previewCookie;
@@ -25,6 +27,40 @@ exports.getApiHome = function(accessToken, callback) {
 exports.Q_getDocument = function(ctx, id) {
   return Q_submit(ctx.api.forms('everything').ref(ctx.ref).query(Prismic.Predicates.at('document.id', id))).then(function(res){
     return (res && res.results && res.results.length) ? res.results[0] : undefined;
+  });
+};
+
+exports.Q_getAllPosts = function(ctx, posts, page) {
+  posts = posts || [];
+  page = page || 1;
+  console.log("Q_getAllPosts with page ", page);
+  return Q_submit(ctx.api.forms('everything')
+    .ref(ctx.ref)
+    .page(page)
+    .query(Prismic.Predicates.at('document.type', 'post'))
+    .orderings('[my.post.date desc]'))
+    .then(function(response) {
+      if (response.next_page) {
+        return exports.Q_getAllPosts(ctx, posts.concat(response.results), page + 1);
+      } else {
+        return posts.concat(response.results);
+      }
+    });
+};
+
+exports.Q_getCalendar = function(ctx) {
+  return exports.Q_getAllPosts(ctx).then(function(posts){
+    return _(posts)
+      .reject(function(post) {
+        !post.getDate("post.date");
+      })
+      .map(function(post) {
+        var date = post.getDate("post.date");
+        return {
+          'label': moment(date).format("MMMM YYYY"),
+          'link': 'archives/' + moment(date).format("YYYY/MM")
+        }
+    }).uniq('label').value();
   });
 };
 
@@ -95,7 +131,10 @@ exports.route = function(callback) {
             }
           };
       res.locals.ctx = ctx;
-      callback(req, res, ctx);
+      exports.Q_getCalendar(ctx).then(function(calendar){
+        res.locals.calendar = calendar;
+        callback(req, res, ctx);
+      });
     });
   };
 };

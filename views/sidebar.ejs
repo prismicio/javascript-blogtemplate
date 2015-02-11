@@ -26,9 +26,9 @@
 <div class="sidebar-section">
     <h3>Archives</h3>
     <ul>
-        <?php foreach(get_calendar() as $entry) { ?>
-        <li><a href="<?= $entry['link'] ?>"><?= $entry['label'] ?></a></li>
-        <?php } ?>
+        <% for (var k=0; k < calendar.length; k++) { %>
+        <li><a href="<%= calendar[k].link %>"><%= calendar[k].label %></a></li>
+        <% } %>
     </ul>
 </div>
 
