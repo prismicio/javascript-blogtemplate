@@ -1,7 +1,8 @@
 var helpers = require('../prismic-helpers'),
   Prismic = require('prismic.io').Prismic,
   Q = require('q'),
-  _ = require('lodash');
+  _ = require('lodash'),
+  moment = require('moment');
 
 // Submit a Prismic form and get a Q promise
 
@@ -91,6 +92,56 @@ exports.author = helpers.route(function(req, res, ctx) {
     } else {
       res.status(404).send('Not found');
     }
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
+});
+
+exports.archive = helpers.route(function(req, res, ctx) {
+  try {
+    var year = parseInt(req.params['year'], 10);
+    var month = parseInt(req.params['month'], 10);
+    var day = parseInt(req.params['day'], 10);
+  } catch (ex) {
+    res.status(404).send('Not found');
+  }
+  var lowerBound, upperBound;
+  if (!month) {
+    lowerBound = moment(year + "-01-01", "YYYY-MM-DD");
+    upperBound = moment((year + 1) + "-01-01", "YYYY-MM-DD");
+  } else if (!day) {
+    lowerBound = moment(year + '-' + month + '-01');
+    upperBound = lowerBound.clone()
+    lowerBound.subtract(1, 'day');
+    upperBound.endOf('month')
+  } else {
+    lowerBound = moment(year + '-' + month + '-' + day);
+    upperBound = lowerBound.clone()
+    upperBound.add(1, 'day');
+  }
+  var docs = Q_submit(helpers.form(ctx)
+    .page(req.param('page') || '1')
+    .query(
+      Prismic.Predicates.at('document.type', 'post'),
+      Prismic.Predicates.dateBetween('my.post.date', lowerBound.toDate(), upperBound.toDate()))
+    .fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])
+    .orderings("[my.post.date desc]"));
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, pages, docs]).then(function (result) {
+    res.render('index', {
+      home: result[0],
+      pages: result[1],
+      docs: result[2]
+    });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
   });

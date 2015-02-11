@@ -33,7 +33,6 @@ exports.Q_getDocument = function(ctx, id) {
 exports.Q_getAllPosts = function(ctx, posts, page) {
   posts = posts || [];
   page = page || 1;
-  console.log("Q_getAllPosts with page ", page);
   return Q_submit(ctx.api.forms('everything')
     .ref(ctx.ref)
     .page(page)
@@ -58,7 +57,7 @@ exports.Q_getCalendar = function(ctx) {
         var date = post.getDate("post.date");
         return {
           'label': moment(date).format("MMMM YYYY"),
-          'link': 'archives/' + moment(date).format("YYYY/MM")
+          'link': 'archive/' + moment(date).format("YYYY/MM")
         }
     }).uniq('label').value();
   });
@@ -134,6 +133,8 @@ exports.route = function(callback) {
       exports.Q_getCalendar(ctx).then(function(calendar){
         res.locals.calendar = calendar;
         callback(req, res, ctx);
+      }).fail(function (err) {
+        helpers.onPrismicError(err, req, res);
       });
     });
   };
