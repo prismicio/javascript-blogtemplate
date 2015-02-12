@@ -15,9 +15,13 @@
 
         <%- post.getStructuredText('post.body').asHtml(ctx.linkResolver) %>
 
-        <!-- TODO previous_post_link() -->
+        <% if (previous) { %>
+        &laquo; <a href="<%= ctx.linkResolver(previous) %>"><%= previous.getText('post.title') %></a>
+        <% } %>
 
-        <!-- TODO next_post_link() -->
+        <% if (next) { %>
+        <a href="<%= ctx.linkResolver(next) %>"><%= next.getText('post.title') %></a> &raquo;
+        <% } %>
 
     </div>
 </div>

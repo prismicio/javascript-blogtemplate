@@ -4,6 +4,11 @@ var helpers = require('../prismic-helpers'),
   _ = require('lodash'),
   moment = require('moment');
 
+// Q.js error reporting
+
+Q.longStackSupport = true;
+Q.onerror = function(err) { console.error(err, err.stack) };
+
 // Submit a Prismic form and get a Q promise
 
 function Q_submit(form) {
@@ -111,12 +116,12 @@ exports.archive = helpers.route(function(req, res, ctx) {
     upperBound = moment((year + 1) + "-01-01", "YYYY-MM-DD");
   } else if (!day) {
     lowerBound = moment(year + '-' + month + '-01');
-    upperBound = lowerBound.clone()
+    upperBound = lowerBound.clone();
     lowerBound.subtract(1, 'day');
     upperBound.endOf('month')
   } else {
     lowerBound = moment(year + '-' + month + '-' + day);
-    upperBound = lowerBound.clone()
+    upperBound = lowerBound.clone();
     upperBound.add(1, 'day');
   }
   var docs = Q_submit(helpers.form(ctx)
@@ -203,14 +208,30 @@ exports.post = helpers.route(function(req, res, ctx) {
   var pages = Q_pages(ctx);
 
   Q.all([home, pages, doc]).then(function (result) {
-    if (!result[2]) {
+    var document = result[2];
+    if (!document) {
       res.send(404, 'Sorry, we cannot find that!');
       return;
     }
-    res.render('detail', {
-      home: result[0],
-      pages: result[1],
-      post: result[2]
+    Q.all([
+      Q_submit(helpers.form(ctx)
+        .query(Prismic.Predicates.at('document.type', "post"))
+        .set("after", document.id)
+        .orderings('[my.post.date]')),
+      Q_submit(helpers.form(ctx)
+        .query(Prismic.Predicates.at('document.type', "post"))
+        .set("after", document.id)
+      .orderings('[my.post.date desc]'))
+    ]).then(function (prevnext) {
+      var previous = prevnext[0].results.length > 0 ? prevnext[0].results[0] : null;
+      var next = prevnext[1].results.length > 0 ? prevnext[1].results[0] : null;
+      res.render('detail', {
+        home: result[0],
+        pages: result[1],
+        post: document,
+        previous: previous,
+        next: next
+      });
     });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
