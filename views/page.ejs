@@ -9,14 +9,9 @@
 <div class="container">
     <div class="blog-main">
 
-
         <% if (post.getStructuredText('page.body')) { %>
         <%- post.getStructuredText('page.body').asHtml(ctx.linkResolver) %>
         <% } %>
-
-        <!-- TODO previous_post_link() -->
-
-        <!-- TODO next_post_link() -->
 
     </div>
 </div>
