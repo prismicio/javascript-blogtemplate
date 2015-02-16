@@ -36,3 +36,6 @@ mixin blogpost(post)
             !{post.getStructuredText('post.shortlede').asHtml(ctx.linkResolver)}
         else
             | #{post.getStructuredText('post.body').asText().substring(0, 300)} ...
+
+//mixin nextpage(response)
+
