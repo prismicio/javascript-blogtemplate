@@ -1,0 +1,23 @@
+extends ./layout.jade
+include ./mixins.jade
+
+block vars
+    - var title= 'Prismic Starter'
+    - var bodyclass= 'front-page'
+
+block body
+    div.blog-header.home
+        div.container
+            h1.blog-title Prismic Starter
+            p.lead.blog-description Site description
+
+    div.container.blog-main
+
+        each post in docs.results
+            +blogpost(post)
+        else
+            Sorry, no posts matched your criteria.
+
+        <?php previous_posts_link() ?>
+
+        <?php next_posts_link() ?>

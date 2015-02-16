@@ -1,0 +1,36 @@
+mixin postmeta(icon, label, link)
+    span(class="fa fa-#{icon}", aria-hidden="true") &nbsp;
+    a(href="#{link}") #{label}
+
+
+mixin blogpost(post)
+    .blog-post
+        h2.blog-post-title
+            a(href=ctx.linkResolver(post)) #{post.getText('post.title')}
+        p.blog-post-meta
+            if post.getDate('post.date')
+                - var m = moment(post.getDate('post.date'))
+                +postmeta('calendar', m.format('MMMM D, YYYY'), '/archive/' + m.format('YYYY/MM/DD'))
+            if post.getLink('post.author')
+                +postmeta('user', post.getLink('post.author').getText('author.full_name'), ctx.linkResolver(post.getLink('post.author')))
+            if post.getGroup('post.categories')
+                span.fa.fa-folder-open(aria-hidden="true") &nbsp;
+                - var categories = post.getGroup('post.categories').value
+                each cat, i in categories
+                    if i > 0
+                        | ,&nbsp;
+                    a(href=ctx.linkResolver(cat.getLink('link'))) #{cat.getLink('link').getText('category.name')}
+            if post.tags.length > 0
+                span.fa.fa-tags(aria-hidden="true") &nbsp;
+                each tag, i in post.tags
+                    if i > 0
+                        | ,&nbsp;
+                    a(href='/tag/#{tag}') #{tag}
+
+        .post-thumbnail
+            !{post.getImageView('post.image', 'medium') ? post.getImageView('post.image', 'medium').asHtml() : ''}
+
+        if post.getStructuredText('post.shortlede')
+            !{post.getStructuredText('post.shortlede').asHtml(ctx.linkResolver)}
+        else
+            | #{post.getStructuredText('post.body').asText().substring(0, 300)} ...

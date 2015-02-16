@@ -1,0 +1,65 @@
+doctype html(lang='en')
+
+block vars
+
+head
+    block title
+        title Prismic Starter
+    link(rel="alternate", type="application/rss+xml", title="Prismic Starter's Feed", href="/feed")
+    link(rel="stylesheet", href="/common.css")
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/main.css">
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700|PT+Serif:400,400italic' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="/modernizr.js"></script>
+    <script src="/jquery-1.11.2.min.js"></script>
+
+body(class="#{bodyclass}")
+
+#right-panel
+    .search
+        .search-icon
+            i.fa.fa-search
+        form(method = "get", action = "/search")
+            input(type = "text", placeholder = "search", name = "q")
+
+    .sidebar-section
+        h3.blog-nav-item
+            a(href=ctx.linkResolver(home)) Home
+
+    each page, i in pages
+        .sidebar-section
+            h3
+                a(href=page.doc.getLink('link').url(ctx.linkResolver)) #{page.doc.getText('label')}
+            ul
+            each subpage, j in page.children
+                li
+                    a(href=subpage.getLink('link').url(ctx.linkResolver)) #{subpage.getText('label')}
+
+    .sidebar-section
+        h3 Archives
+        ul
+        each cal, k in calendar
+            li
+                a(href=cal.link) #{cal.label}
+
+div#main
+    a#menu-hamburger(href="#right-panel")
+        i.fa.fa-bars
+
+    block body
+
+    footer.blog-footer
+        p
+            a(href="#") Back to top
+
+// Prismic toolbar
+script(src="//static.cdn.prismic.io/prismic.min.js")
+
+// Hamburger menu
+script(src="/jquery.panelslider.js")
+script(type="text/javascript").
+    $('#menu-hamburger').panelslider({side: 'right', duration: 200 });
+
+
