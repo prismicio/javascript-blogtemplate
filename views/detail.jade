@@ -1,0 +1,28 @@
+extends ./layout.jade
+include ./mixins.jade
+
+block vars
+    - var title= post.getText('post.title')
+    - var bodyclass= 'front-page'
+
+block body
+    .blog-header(style=post.getImageView('post.image', 'main') ? "background-image: url(#{post.getImageView('post.image', 'main')})" : "")
+        .container
+            h1.blog-title #{post.getText('post.title')}
+
+    .container
+        .blog-main
+
+            p.blog-post-meta
+                +postmeta(post)
+
+            !{post.getStructuredText('post.body').asHtml(ctx.linkResolver)}
+
+            if previous
+                | &laquo;&nbsp;
+                a(href=ctx.linkResolver(previous)) #{previous.getText('post.title')}
+
+            if next
+                a(href=ctx.linkResolver(next)) #{next.getText('post.title')}
+                | &nbsp;&raquo;
+
