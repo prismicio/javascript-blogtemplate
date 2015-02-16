@@ -30,6 +30,12 @@ exports.Q_getDocument = function(ctx, id) {
   });
 };
 
+exports.Q_byUID = function(ctx, type, uid) {
+  return Q_submit(ctx.api.forms('everything').ref(ctx.ref).query(Prismic.Predicates.at('my.' + type + '.uid', uid))).then(function(res){
+    return (res && res.results && res.results.length) ? res.results[0] : undefined;
+  });
+};
+
 exports.Q_getAllPosts = function(ctx, posts, page) {
   posts = posts || [];
   page = page || 1;

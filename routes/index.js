@@ -271,6 +271,82 @@ exports.search = helpers.route(function(req, res, ctx) {
 
 });
 
+// -- Tag page
+
+exports.thetag = helpers.route(function(req, res, ctx) {
+  var tag = req.params['tag'];
+
+  var docs = Q_submit(helpers.form(ctx)
+    .page(req.param('page') || '1')
+    .query(
+    Prismic.Predicates.at('document.type', 'post'),
+    Prismic.Predicates.any('document.tags', [tag])
+  ).fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])
+    .orderings("[my.post.date desc]"));
+  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+  var pages = Q_pages(ctx);
+
+  Q.all([home, pages, docs]).then(function (result) {
+    res.render('tag', {
+      tag: tag,
+      home: result[0],
+      pages: result[1],
+      docs: result[2]
+    });
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
+
+});
+
+// -- Category page
+
+exports.category = helpers.route(function(req, res, ctx) {
+  var uid = req.params['uid'];
+
+  helpers.Q_byUID(ctx, 'category', uid).then(function(category) {
+    if (!category) {
+      res.send(404, 'Sorry, we cannot find that!');
+      return;
+    }
+    var docs = Q_submit(helpers.form(ctx)
+      .page(req.param('page') || '1')
+      .query(
+        Prismic.Predicates.at('document.type', 'post'),
+        Prismic.Predicates.any('my.post.categories.link', [category.id])
+      ).fetchLinks([
+        'post.date',
+        'category.name',
+        'author.full_name',
+        'author.first_name',
+        'author.surname',
+        'author.company'
+      ])
+      .orderings("[my.post.date desc]"));
+    var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+    var pages = Q_pages(ctx);
+
+    Q.all([home, pages, docs]).then(function (result) {
+      res.render('category', {
+        category: category,
+        home: result[0],
+        pages: result[1],
+        docs: result[2]
+      });
+    });
+  }).fail(function (err) {
+    helpers.onPrismicError(err, req, res);
+  });
+
+});
+
 // -- Preview documents from the Writing Room
 
 exports.preview = helpers.route(function(req, res, ctx) {
