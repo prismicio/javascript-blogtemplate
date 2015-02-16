@@ -1,0 +1,17 @@
+extends ./layout.jade
+include ./mixins.jade
+
+block vars
+    - var title= 'Prismic Starter'
+
+block body
+    .blog-header(style=post.getImageView('page.image', 'main') ? "background-image: url(#{post.getImageView('page.image', 'main')})" : "")
+        .container
+            h1.blog-title #{post.getText('page.title')}
+
+    .container
+        .blog-main
+
+            if post.getStructuredText('page.body')
+                !{post.getStructuredText('page.body').asHtml(ctx.linkResolver)}
+

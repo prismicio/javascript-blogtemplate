@@ -3,7 +3,6 @@ include ./mixins.jade
 
 block vars
     - var title= post.getText('post.title')
-    - var bodyclass= 'front-page'
 
 block body
     .blog-header(style=post.getImageView('post.image', 'main') ? "background-image: url(#{post.getImageView('post.image', 'main')})" : "")
