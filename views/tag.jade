@@ -1,0 +1,24 @@
+extends ./layout.jade
+include ./mixins.jade
+
+block vars
+    - var title= 'Prismic Starter'
+    - var bodyclass= 'front-page'
+
+block body
+
+    .blog-header
+        .container
+            h1.blog-title tag: #{tag}
+
+    .container.blog-main
+        each post in docs.results
+            +blogpost(post)
+        else
+            | Sorry, no posts matched your criteria.
+
+        <?php previous_posts_link() ?>
+
+        <?php next_posts_link() ?>
+    
+

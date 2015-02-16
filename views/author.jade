@@ -1,0 +1,31 @@
+extends ./layout.jade
+include ./mixins.jade
+
+block vars
+    - var title= author.getText('author.full_name')
+
+block body
+
+    .blog-header.blog-author-header
+        .container
+            .author-image(style="background-image: url(#{author.getImageView('author.photo', 'main')})")
+            h1.blog-title.author-name-title #{author.getText('author.full_name')}
+            .author-bio
+                !{author.getStructuredText('author.bio').asHtml(ctx.linkResolver())}
+            .author-sites
+                ul
+                    each site in author.getGroup('author.sites').value
+                        li
+                            a(href=site.getLink('link').url(ctx.linkResolver)) #{site.getText('label')}
+
+    .container.blog-main
+        each post in docs.results
+            +blogpost(post)
+        else
+            | No post.
+
+        <?php previous_posts_link() ?>
+
+        <?php next_posts_link() ?>
+
+

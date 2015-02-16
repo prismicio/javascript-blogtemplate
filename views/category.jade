@@ -1,0 +1,22 @@
+extends ./layout.jade
+include ./mixins.jade
+
+block vars
+    - var title= 'Prismic Starter'
+    - var bodyclass= 'front-page'
+
+block body
+    .blog-header(style=category.getImageView('category.illustration', 'main') ? "background-image: url(#{category.getImageView('category.illustration', 'main').url})" : "")
+        .container
+            h1.blog-title #{category.getText('category.name')}
+
+    .container.blog-main
+        each post in docs.results
+            +blogpost(post)
+        else
+            | Sorry, no posts matched your criteria.
+
+        <?php previous_posts_link() ?>
+
+        <?php next_posts_link() ?>
+
