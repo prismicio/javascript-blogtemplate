@@ -244,7 +244,7 @@ exports.search = helpers.route(function(req, res, ctx) {
   var q = req.query['q'];
 
   var docs = Q_submit(helpers.form(ctx)
-    .page(req.param('page') || '1')
+    .page(req.query['page'] || '1')
     .query(Prismic.Predicates.fulltext('document', q))
     .fetchLinks([
       'post.date',
@@ -277,7 +277,7 @@ exports.thetag = helpers.route(function(req, res, ctx) {
   var tag = req.params['tag'];
 
   var docs = Q_submit(helpers.form(ctx)
-    .page(req.param('page') || '1')
+    .page(req.query['page'] || '1')
     .query(
     Prismic.Predicates.at('document.type', 'post'),
     Prismic.Predicates.any('document.tags', [tag])
@@ -317,7 +317,7 @@ exports.category = helpers.route(function(req, res, ctx) {
       return;
     }
     var docs = Q_submit(helpers.form(ctx)
-      .page(req.param('page') || '1')
+      .page(req.query['page'] || '1')
       .query(
         Prismic.Predicates.at('document.type', 'post'),
         Prismic.Predicates.any('my.post.categories.link', [category.id])

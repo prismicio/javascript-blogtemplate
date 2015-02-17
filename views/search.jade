@@ -19,11 +19,12 @@ block body
         each post in docs.results
             +blogpost(post)
         else
-            Sorry, no posts matched your criteria.
+            | Sorry, no posts matched your criteria.
 
-    <?php previous_posts_link() ?>
+        if docs.prev_page
+            a(href='/search?q=#{q}&page=#{docs.page - 1}') « Previous Page
 
-    <?php next_posts_link() ?>
+        if docs.next_page
+            a(href='/search?q=#{q}&page=#{docs.page + 1}') Next Page »
 
-</div>
 

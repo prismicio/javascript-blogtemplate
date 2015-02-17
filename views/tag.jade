@@ -17,8 +17,9 @@ block body
         else
             | Sorry, no posts matched your criteria.
 
-        <?php previous_posts_link() ?>
+        if docs.prev_page
+            a(href='/tag/#{tag}?page=#{docs.page - 1}') « Previous Page
 
-        <?php next_posts_link() ?>
-
+        if docs.next_page
+            a(href='/tag/#{tag}?page=#{docs.page + 1}') Next Page »
 
