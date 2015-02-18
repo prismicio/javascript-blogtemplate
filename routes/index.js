@@ -2,6 +2,7 @@ var helpers = require('../prismic-helpers'),
   Prismic = require('prismic.io').Prismic,
   Q = require('q'),
   _ = require('lodash'),
+  RSS = require('rss'),
   moment = require('moment');
 
 // Q.js error reporting
@@ -346,6 +347,59 @@ exports.category = helpers.route(function(req, res, ctx) {
   });
 
 });
+
+// -- RSS Feed
+exports.feed = helpers.route(function(req, res, ctx) {
+  Q_submit(helpers.form(ctx)
+    .page(req.param('page') || '1')
+    .query(Prismic.Predicates.at('document.type', 'post'))
+    .fetchLinks([
+      'post.date',
+      'category.name',
+      'author.full_name',
+      'author.first_name',
+      'author.surname',
+      'author.company'
+    ])
+    .orderings("[my.post.date desc]"))
+    .then(function (response) {
+      var baseURL = 'http://' + req.headers.host;
+
+      // The RSS feed using the NPM rss module: https://www.npmjs.com/package/rss
+      var feed = new RSS({
+        title: 'Prismic Starter',
+        description: 'description',
+        feed_url: baseURL + '/feed',
+        site_url: baseURL,
+        language: 'en',
+        pubDate: 'May 20, 2012 04:00:00 GMT',
+        ttl: '60'
+      });
+
+      _.each(response.results, function(doc) {
+        var author = doc.getLink('post.author') && doc.getLink('post.author').getText('author.full_name');
+        if (doc.getGroup('post.categories'))
+        var categories = doc.getGroup('post.categories') &&
+            _.map(doc.getGroup('post.categories').value, function(cat) {
+              return cat.getLink('link').getText('category.name')
+            });
+        console.log("Got cats ", categories);
+        feed.item({
+          title: doc.getText('post.title'),
+          description: doc.asHtml(ctx.linkResolver),
+          url: baseURL + ctx.linkResolver(doc),
+          categories: categories,
+          author: author,
+          date: doc.getDate('post.date')
+        });
+      });
+
+      res.send(feed.xml({indent: true}));
+    }).fail(function (err) {
+      helpers.onPrismicError(err, req, res);
+    });
+});
+
 
 // -- Preview documents from the Writing Room
 

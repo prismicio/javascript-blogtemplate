@@ -45,7 +45,7 @@ app.route('/archive/:year').get(routes.archive);
 app.route('/archive/:year/:month').get(routes.archive);
 app.route('/archive/:year/:month/:day').get(routes.archive);
 app.route('/preview').get(routes.preview);
-//app.route('/feed').get(routes.feed);
+app.route('/feed').get(routes.feed);
 app.route('/:year/:month/:day/:uid').get(routes.post);
 app.route('/:uid').get(routes.page);
 
