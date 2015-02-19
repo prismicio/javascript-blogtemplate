@@ -218,10 +218,12 @@ exports.post = helpers.route(function(req, res, ctx) {
       Q_submit(helpers.form(ctx)
         .query(Prismic.Predicates.at('document.type', "post"))
         .set("after", document.id)
+        .pageSize(1)
         .orderings('[my.post.date]')),
       Q_submit(helpers.form(ctx)
         .query(Prismic.Predicates.at('document.type', "post"))
         .set("after", document.id)
+        .pageSize(1)
       .orderings('[my.post.date desc]'))
     ]).then(function (prevnext) {
       var previous = prevnext[0].results.length > 0 ? prevnext[0].results[0] : null;
