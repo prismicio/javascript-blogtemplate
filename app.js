@@ -22,7 +22,6 @@ app.locals.moment = require('moment');
 app.locals._ = require('lodash');
 
 // all environments
-app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(favicon());
@@ -48,11 +47,5 @@ app.route('/preview').get(routes.preview);
 app.route('/feed').get(routes.feed);
 app.route('/:year/:month/:day/:uid').get(routes.post);
 app.route('/:uid').get(routes.page);
-
-var PORT = app.get('port');
-
-app.listen(PORT, function() {
-  console.log('Express server listening on port ' + PORT);
-});
 
 module.exports = app;

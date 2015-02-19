@@ -61,7 +61,7 @@ exports.Q_getCalendar = function(ctx) {
         var date = post.getDate("post.date");
         return {
           'label': moment(date).format("MMMM YYYY"),
-          'link': 'archive/' + moment(date).format("YYYY/MM")
+          'link': '/archive/' + moment(date).format("YYYY/MM")
         }
     }).uniq('label').value();
   });
