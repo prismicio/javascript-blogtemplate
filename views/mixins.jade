@@ -30,10 +30,10 @@ mixin blogpost(post)
             +postmeta(post)
 
         .post-thumbnail
-            !{post.getImageView('post.image', 'medium') ? post.getImageView('post.image', 'medium').asHtml() : ''}
+            | !{post.getImageView('post.image', 'medium') ? post.getImageView('post.image', 'medium').asHtml() : ''}
 
         if post.getStructuredText('post.shortlede')
-            !{post.getStructuredText('post.shortlede').asHtml(ctx.linkResolver)}
+            | !{post.getStructuredText('post.shortlede').asHtml(ctx.linkResolver)}
         else
             | #{post.getStructuredText('post.body').asText().substring(0, 300)} ...
 

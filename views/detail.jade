@@ -15,7 +15,7 @@ block body
             p.blog-post-meta
                 +postmeta(post)
 
-            !{post.getStructuredText('post.body').asHtml(ctx.linkResolver)}
+            | !{post.getStructuredText('post.body').asHtml(ctx.linkResolver)}
 
             if previous
                 | &laquo;&nbsp;

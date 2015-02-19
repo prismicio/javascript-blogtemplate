@@ -408,7 +408,11 @@ exports.preview = helpers.route(function(req, res, ctx) {
 
   if (token) {
     ctx.api.previewSession(token, ctx.linkResolver, '/', function(err, url) {
-      res.cookie(helpers.previewCookie, token, { maxAge: 30 * 60 * 1000, path: '/', httpOnly: false });
+      if (err) {
+        helpers.onPrismicError(err, req, res);
+        return;
+      }
+      res.cookie(Prismic.previewCookie, token, { maxAge: 30 * 60 * 1000, path: '/', httpOnly: false });
       res.redirect(301, url);
     });
   } else {

@@ -8,8 +8,6 @@ var Prismic = require('prismic.io').Prismic,
     moment = require('moment'),
     Q = require('q');
 
-exports.previewCookie = Prismic.previewCookie;
-
 // -- Helpers
 
 function Q_submit(form) {
