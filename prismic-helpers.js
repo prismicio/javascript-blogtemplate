@@ -51,7 +51,7 @@ exports.Q_getAllPosts = function(ctx, posts, page) {
     });
 };
 
-exports.Q_getCalendar = function(ctx) {
+exports.Q_calendar = function(ctx) {
   return exports.Q_getAllPosts(ctx).then(function(posts){
     return _(posts)
       .reject(function(post) {
@@ -66,6 +66,27 @@ exports.Q_getCalendar = function(ctx) {
     }).uniq('label').value();
   });
 };
+
+exports.Q_pages = function (ctx) {
+  return exports.Q_getDocument(ctx, ctx.api.bookmarks['home']).then(function (home) {
+    var pages = home.getGroup('page.children').toArray();
+    return Q.all(_.map(pages, function(page) {
+      var link = page.getLink('link');
+      var childrenP = Q([]);
+      if (link instanceof Prismic.Fragments.DocumentLink) {
+        childrenP = exports.Q_getDocument(ctx, link.id).then(function (linkDoc) {
+          return linkDoc.getGroup('page.children') ? linkDoc.getGroup('page.children').toArray() : [];
+        });
+      }
+      return childrenP.then(function(children){
+        return {
+          doc: page,
+          children: children
+        }
+      });
+    }));
+  })
+}
 
 exports.getDocument = function(ctx, id, slug, onSuccess, onNewSlug, onNotFound) {
   ctx.api.forms('everything').ref(ctx.ref).query('[[:d = at(document.id, "' + id + '")]]').submit(function(err, documents) {
@@ -134,11 +155,16 @@ exports.route = function(callback) {
             }
           };
       res.locals.ctx = ctx;
-      exports.Q_getCalendar(ctx).then(function(calendar){
-        res.locals.calendar = calendar;
+      var home = exports.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+      var pages = exports.Q_pages(ctx);
+      var calendar = exports.Q_calendar(ctx);
+      Q.all([home, pages, calendar]).then(function(result){
+        res.locals.home = result[0];
+        res.locals.pages = result[1];
+        res.locals.calendar = result[2];
         callback(req, res, ctx);
       }).fail(function (err) {
-        helpers.onPrismicError(err, req, res);
+        exports.onPrismicError(err, req, res);
       });
     });
   };

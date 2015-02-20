@@ -16,29 +16,6 @@ function Q_submit(form) {
   return Q.nbind(form.submit, form)();
 }
 
-// Pages helpers
-
-function Q_pages(ctx) {
-  return helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']).then(function (home) {
-    var pages = home.getGroup('page.children').toArray();
-    return Q.all(_.map(pages, function(page) {
-      var link = page.getLink('link');
-      var childrenP = Q([]);
-      if (link instanceof Prismic.Fragments.DocumentLink) {
-        childrenP = helpers.Q_getDocument(ctx, link.id).then(function (linkDoc) {
-          return linkDoc.getGroup('page.children') ? linkDoc.getGroup('page.children').toArray() : [];
-        });
-      }
-      return childrenP.then(function(children){
-        return {
-          doc: page,
-          children: children
-        }
-      });
-    }));
-  })
-}
-
 // -- Display all documents
 
 exports.index = helpers.route(function(req, res, ctx) {
@@ -54,14 +31,10 @@ exports.index = helpers.route(function(req, res, ctx) {
       'author.company'
     ])
     .orderings("[my.post.date desc]"));
-  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-  var pages = Q_pages(ctx);
 
-  Q.all([home, pages, docs]).then(function (result) {
+  docs.then(function (result) {
     res.render('index', {
-      home: result[0],
-      pages: result[1],
-      docs: result[2]
+      docs: result
     });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
@@ -84,16 +57,12 @@ exports.author = helpers.route(function(req, res, ctx) {
       'author.company'
     ])
     .orderings("[my.post.date desc]"));
-  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-  var pages = Q_pages(ctx);
 
-  Q.all([home, author, pages, docs]).then(function (result) {
+  Q.all([author, docs]).then(function (result) {
     if (result[1].results_size > 0) {
       res.render('author', {
-        home: result[0],
-        author: result[1].results[0],
-        pages: result[2],
-        docs: result[3]
+        author: result[0].results[0],
+        docs: result[1]
       });
     } else {
       res.status(404).send('Not found');
@@ -139,14 +108,10 @@ exports.archive = helpers.route(function(req, res, ctx) {
       'author.company'
     ])
     .orderings("[my.post.date desc]"));
-  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-  var pages = Q_pages(ctx);
 
-  Q.all([home, pages, docs]).then(function (result) {
+  docs.then(function (result) {
     res.render('index', {
-      home: result[0],
-      pages: result[1],
-      docs: result[2]
+      docs: result
     });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
@@ -173,15 +138,13 @@ exports.page = helpers.route(function(req, res, ctx) {
   var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
   var pages = Q_pages(ctx);
 
-  Q.all([home, pages, doc]).then(function (result) {
+  pages.then(function (result) {
     if (!result[2]) {
       res.send(404, 'Sorry, we cannot find that!');
       return;
     }
     res.render('page', {
-      home: result[0],
-      pages: result[1],
-      post: result[2]
+      post: result
     });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
@@ -205,11 +168,9 @@ exports.post = helpers.route(function(req, res, ctx) {
     ])).then(function(res) {
       return (res && res.results && res.results.length) ? res.results[0] : undefined;
   });
-  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-  var pages = Q_pages(ctx);
 
-  Q.all([home, pages, doc]).then(function (result) {
-    var document = result[2];
+  doc.then(function (result) {
+    var document = result;
     if (!document) {
       res.send(404, 'Sorry, we cannot find that!');
       return;
@@ -229,8 +190,6 @@ exports.post = helpers.route(function(req, res, ctx) {
       var previous = prevnext[0].results.length > 0 ? prevnext[0].results[0] : null;
       var next = prevnext[1].results.length > 0 ? prevnext[1].results[0] : null;
       res.render('detail', {
-        home: result[0],
-        pages: result[1],
         post: document,
         previous: previous,
         next: next
@@ -261,12 +220,10 @@ exports.search = helpers.route(function(req, res, ctx) {
   var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
   var pages = Q_pages(ctx);
 
-  Q.all([home, pages, docs]).then(function (result) {
+  docs.then(function (result) {
     res.render('search', {
       q: q,
-      home: result[0],
-      pages: result[1],
-      docs: result[2]
+      docs: result
     });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
@@ -293,15 +250,11 @@ exports.thetag = helpers.route(function(req, res, ctx) {
       'author.company'
     ])
     .orderings("[my.post.date desc]"));
-  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-  var pages = Q_pages(ctx);
 
-  Q.all([home, pages, docs]).then(function (result) {
+  docs.then(function (result) {
     res.render('tag', {
       tag: tag,
-      home: result[0],
-      pages: result[1],
-      docs: result[2]
+      docs: result
     });
   }).fail(function (err) {
     helpers.onPrismicError(err, req, res);
@@ -333,15 +286,11 @@ exports.category = helpers.route(function(req, res, ctx) {
         'author.company'
       ])
       .orderings("[my.post.date desc]"));
-    var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-    var pages = Q_pages(ctx);
 
-    Q.all([home, pages, docs]).then(function (result) {
+    docs.then(function (result) {
       res.render('category', {
         category: category,
-        home: result[0],
-        pages: result[1],
-        docs: result[2]
+        docs: result
       });
     });
   }).fail(function (err) {
