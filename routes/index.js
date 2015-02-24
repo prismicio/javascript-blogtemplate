@@ -217,8 +217,6 @@ exports.search = helpers.route(function(req, res, ctx) {
       'author.company'
     ])
     .orderings("[my.post.date desc]"));
-  var home = helpers.Q_getDocument(ctx, ctx.api.bookmarks['home']);
-  var pages = Q_pages(ctx);
 
   docs.then(function (result) {
     res.render('search', {

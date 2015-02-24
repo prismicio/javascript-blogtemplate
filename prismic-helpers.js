@@ -67,8 +67,14 @@ exports.Q_calendar = function(ctx) {
   });
 };
 
+exports.Q_home = function (ctx) {
+  if (!ctx.api.bookmarks || !ctx.api.bookmarks['home']) return Q(null);
+  return exports.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+}
+
 exports.Q_pages = function (ctx) {
-  return exports.Q_getDocument(ctx, ctx.api.bookmarks['home']).then(function (home) {
+  return exports.Q_home(ctx).then(function (home) {
+    if (!home) return [];
     var pages = home.getGroup('page.children').toArray();
     return Q.all(_.map(pages, function(page) {
       var link = page.getLink('link');
@@ -86,7 +92,7 @@ exports.Q_pages = function (ctx) {
       });
     }));
   })
-}
+};
 
 exports.getDocument = function(ctx, id, slug, onSuccess, onNewSlug, onNotFound) {
   ctx.api.forms('everything').ref(ctx.ref).query('[[:d = at(document.id, "' + id + '")]]').submit(function(err, documents) {
@@ -155,7 +161,7 @@ exports.route = function(callback) {
             }
           };
       res.locals.ctx = ctx;
-      var home = exports.Q_getDocument(ctx, ctx.api.bookmarks['home']);
+      var home = exports.Q_home(ctx);
       var pages = exports.Q_pages(ctx);
       var calendar = exports.Q_calendar(ctx);
       Q.all([home, pages, calendar]).then(function(result){
