@@ -1,3 +1,6 @@
+> ### ⚠️ Deprecated
+> Please see prismicio/nextjs-starter-prismic-blog instead.
+
 # javascript-blogtemplate
 
 Start the server:
