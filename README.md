@@ -1,5 +1,5 @@
 > ### ⚠️ Deprecated
-> Please see prismicio/nextjs-starter-prismic-blog instead.
+> Please see [prismicio/nextjs-starter-prismic-blog](https://github.com/prismicio-community/nextjs-starter-prismic-blog) instead.
 
 # javascript-blogtemplate
 
